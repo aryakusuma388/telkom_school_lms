@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Login from './pages/Login';
 import TeacherDash from './pages/TeacherDash';
 import StudentDash from './pages/StudentDash';
 import KelasAjar from './pages/KelasAjar';
 import BuatKelas from './pages/BuatKelas';
 import ProfilGuru from './pages/ProfilGuru'; // Import Halaman Baru
+import LoadingScreen from './components/LoadingScreen';
 
 // Import data awal
 import { initialKelas } from './data/InitialData'; 
@@ -81,7 +82,9 @@ const App = () => {
 
   // --- RENDER HALAMAN ---
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen bg-slate-50 text-[#7f1d1d] font-bold">Memuat...</div>;
+  if (loading) {
+    return <LoadingScreen />; // <-- Panggil komponen animasi di sini
+  }
 
   if (!role) return <Login onLogin={handleLogin} />;
 

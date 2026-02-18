@@ -151,7 +151,7 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
               <div className="relative z-10 max-w-md">
                 {/* NAMA PANGGILAN DINAMIS */}
                 <h1 className="mb-2 text-2xl font-bold text-slate-800">
-                  Selamat Datang, {profil.namaPanggilan}! 👋
+                  Selamat Datang, Pak {profil.namaPanggilan}! 👋
                 </h1>
                 <p className="mb-6 text-sm leading-relaxed text-slate-500">
                   Anda memiliki <span className="text-[#7f1d1d] font-bold">{dataKelas.length} Kelas Ajar</span> saat ini. Tetap semangat mencerdaskan bangsa!

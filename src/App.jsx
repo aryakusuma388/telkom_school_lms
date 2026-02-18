@@ -1,83 +1,123 @@
 import React, { useState, useEffect } from 'react';
-
-// Import Halaman
 import Login from './pages/Login';
 import TeacherDash from './pages/TeacherDash';
-// Pastikan StudentDash sudah ada, atau ganti dengan dummy jika belum dibuat
-import StudentDash from './pages/StudentDash'; 
+import StudentDash from './pages/StudentDash';
+import KelasAjar from './pages/KelasAjar';
+import BuatKelas from './pages/BuatKelas';
+import ProfilGuru from './pages/ProfilGuru'; // Import Halaman Baru
 
-// Import Komponen Loading
-import LoadingScreen from './components/LoadingScreen';
+// Import data awal
+import { initialKelas } from './data/InitialData'; 
+import { initialProfile } from './data/userProfile'; // Import Data Arya
 
 const App = () => {
-  const [role, setRole] = useState(null); // 'siswa', 'koordinator', atau null
-  const [loading, setLoading] = useState(true); // Default true saat pertama buka app
+  // 1. STATE LOGIN (PERSISTEN)
+  const [role, setRole] = useState(() => localStorage.getItem('userRole') || null);
 
-  // 1. CEK LOGIN SAAT APLIKASI PERTAMA DIBUKA (REFRESH)
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      // Ambil data dari penyimpanan browser
-      const savedRole = localStorage.getItem('userRole');
-      
-      if (savedRole) {
-        // Jika ada data tersimpan, set role
-        setRole(savedRole);
-      }
-      
-      // Matikan loading setelah pengecekan selesai
-      // Kita kasih sedikit delay agar transisi halus
-      setTimeout(() => {
+  // 2. STATE DATA KELAS (PERSISTEN)
+  const [daftarKelas, setDaftarKelas] = useState(() => {
+    const saved = localStorage.getItem('dataKelasApp');
+    return saved ? JSON.parse(saved) : initialKelas;
+  });
+
+  // 3. STATE PROFIL GURU (BARU & PERSISTEN)
+  // Ini kuncinya: Ambil dari storage, kalau kosong pakai data 'Arya'
+  const [profilGuru, setProfilGuru] = useState(() => {
+    const saved = localStorage.getItem('profilGuruApp');
+    return saved ? JSON.parse(saved) : initialProfile;
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [teacherView, setTeacherView] = useState('dashboard'); 
+
+  // --- FUNGSI UPDATE PROFIL ---
+  const handleUpdateProfil = (dataBaru) => {
+    setLoading(true);
+    setTimeout(() => {
+        setProfilGuru(dataBaru);
+        localStorage.setItem('profilGuruApp', JSON.stringify(dataBaru));
         setLoading(false);
-      }, 1000);
-    };
+    }, 500);
+  };
+  // -----------------------------
 
-    checkLoginStatus();
-  }, []);
-
-  // 2. FUNGSI LOGIN (Dengan Animasi)
   const handleLogin = (userRole) => {
-    setLoading(true); // Mulai animasi loading
-
-    // Simulasi proses login (jeda 1.5 detik)
+    setLoading(true);
     setTimeout(() => {
-      // Simpan role ke browser agar tahan refresh
-      localStorage.setItem('userRole', userRole);
       setRole(userRole);
-      setLoading(false); // Hentikan animasi loading
-    }, 1500);
+      localStorage.setItem('userRole', userRole);
+      setLoading(false);
+    }, 1000);
   };
 
-  // 3. FUNGSI LOGOUT (Dengan Animasi)
   const handleLogout = () => {
-    setLoading(true); // Mulai animasi loading
-
-    // Simulasi proses logout
+    setLoading(true);
     setTimeout(() => {
-      // Hapus data dari browser
-      localStorage.removeItem('userRole');
       setRole(null);
-      setLoading(false); // Hentikan animasi loading
-    }, 1500);
+      localStorage.removeItem('userRole');
+      setTeacherView('dashboard');
+      setLoading(false);
+    }, 1000);
   };
 
-  // --- RENDERING TAMPILAN ---
+  const handleTambahKelas = (kelasBaru) => {
+    setLoading(true);
+    setTimeout(() => {
+        const updatedKelas = [...daftarKelas, kelasBaru];
+        setDaftarKelas(updatedKelas);
+        localStorage.setItem('dataKelasApp', JSON.stringify(updatedKelas));
+        setTeacherView('kelas');
+        setLoading(false);
+    }, 500);
+  };
 
-  // Jika sedang loading, tampilkan LoadingScreen
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  const navigateTeacher = (pageName) => {
+    setLoading(true); 
+    setTimeout(() => {
+        setTeacherView(pageName);
+        setLoading(false);
+    }, 300); 
+  };
 
-  // Logika Navigasi Halaman
+  // --- RENDER HALAMAN ---
+
+  if (loading) return <div className="flex items-center justify-center min-h-screen bg-slate-50 text-[#7f1d1d] font-bold">Memuat...</div>;
+
+  if (!role) return <Login onLogin={handleLogin} />;
+
   if (role === 'koordinator') {
-    return <TeacherDash onLogout={handleLogout} />;
-  } 
-  
-  if (role === 'siswa') {
-    return <StudentDash onLogout={handleLogout} />;
+    // ROUTING GURU
+    if (teacherView === 'profil') {
+        return (
+            <ProfilGuru 
+                dataProfil={profilGuru} // Kirim data Arya ke halaman profil
+                onSave={handleUpdateProfil} // Fungsi simpan
+                onNavigate={navigateTeacher}
+                onLogout={handleLogout}
+            />
+        );
+    }
+    if (teacherView === 'kelas') {
+      return <KelasAjar dataKelas={daftarKelas} onLogout={handleLogout} onNavigate={navigateTeacher} />;
+    }
+    if (teacherView === 'buat-kelas') {
+      return <BuatKelas onSave={handleTambahKelas} onNavigate={navigateTeacher} />;
+    }
+    
+    // Dashboard Utama
+    return (
+      <TeacherDash 
+        dataKelas={daftarKelas} 
+        userProfil={profilGuru} // <-- PENTING: Kirim data profil ke dashboard
+        onLogout={handleLogout} 
+        onNavigate={navigateTeacher} 
+      />
+    );
   }
 
-  // Jika belum login (role === null), tampilkan Login
-  return <Login onLogin={handleLogin} />;
+  if (role === 'siswa') return <StudentDash onLogout={handleLogout} />;
+
+  return null;
 };
 
 export default App;

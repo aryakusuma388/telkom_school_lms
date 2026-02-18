@@ -14,12 +14,22 @@ const Login = ({ onLogin }) => {
     // Reset error
     setError('');
 
-    // Logika Login Sederhana
-    if (username === "1122334455" && password === "1122334455") {
+    // --- LOGIKA LOGIN DIPERBARUI DI SINI ---
+    
+    // 1. Cek Login GURU BARU (NIP: 25000013)
+    if (username === "25000013" && password === "@Telkom2026") {
       onLogin('koordinator'); // Mengarahkan ke TeacherDash
-    } else if (username === "5544332211" && password === "5544332211") {
+    } 
+    // 2. Cek Login GURU LAMA (Untuk testing)
+    else if (username === "1122334455" && password === "1122334455") {
+      onLogin('koordinator'); 
+    } 
+    // 3. Cek Login SISWA
+    else if (username === "5544332211" && password === "5544332211") {
       onLogin('siswa'); // Mengarahkan ke StudentDash
-    } else {
+    } 
+    // 4. Jika Salah
+    else {
       setError("Username atau Password salah!");
     }
   };
@@ -33,10 +43,10 @@ const Login = ({ onLogin }) => {
         {/* SISI KIRI: Gambar Sinematik + Overlay Maroon */}
         <div className="relative flex flex-col justify-between w-full p-10 overflow-hidden text-white md:w-5/12">
           <img 
-  src={schoolImage} // Gunakan variabel impor tadi
-  alt="SMP Telkom Makassar" 
-  className="absolute inset-0 object-cover w-full h-full scale-105" 
-/>
+            src={schoolImage} // Gunakan variabel impor tadi
+            alt="SMP Telkom Makassar" 
+            className="absolute inset-0 object-cover w-full h-full scale-105" 
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-[#4a0f0f] via-[#7f1d1d]/70 to-black/40 mix-blend-multiply"></div>
 
           <div className="relative z-10">
@@ -76,7 +86,7 @@ const Login = ({ onLogin }) => {
           )}
 
           <div className="space-y-6">
-            {/* Input Username (Sebelumnya Email) */}
+            {/* Input Username */}
             <div className="relative group">
               <input 
                 type="text" 

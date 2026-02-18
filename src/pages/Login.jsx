@@ -38,7 +38,7 @@ const Login = ({ onLogin }) => {
     <div className="min-h-screen w-full flex items-center justify-center bg-[#F2F4F8] p-4 font-sans">
       
       {/* Container Utama */}
-      <div className="bg-white w-full max-w-5xl flex flex-col md:flex-row shadow-2xl rounded-[30px] overflow-hidden min-h-[600px]">
+      <div className="bg-white w-full max-w-5xl flex flex-col md:flex-row shadow-2xl rounded-[30px] overflow-hidden min-h-screen">
         
         {/* SISI KIRI: Gambar Sinematik + Overlay Maroon */}
         <div className="relative flex flex-col justify-between w-full p-10 overflow-hidden text-white md:w-5/12">
@@ -47,7 +47,7 @@ const Login = ({ onLogin }) => {
             alt="SMP Telkom Makassar" 
             className="absolute inset-0 object-cover w-full h-full scale-105" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#4a0f0f] via-[#7f1d1d]/70 to-black/40 mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-[#4a0f0f] via-[#7f1d1d]/70 to-black/40 mix-blend-multiply"></div>
 
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2 opacity-90">

@@ -90,7 +90,7 @@ const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
           <div onClick={() => onNavigate('kelas')} className="cursor-pointer">
              <NavItem icon={<BookOpen size={20}/>} label="Kelas Ajar" />
           </div>
-          <NavItem icon={<Settings size={20}/>} label="Pengaturan Akun" active />
+          <NavItem icon={<Settings size={20}/>} label="Pengaturan" active />
         </nav>
         <div className="p-4 border-t border-slate-50">
           <button onClick={onLogout} className="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl">

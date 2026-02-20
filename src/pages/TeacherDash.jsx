@@ -168,7 +168,7 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
               <img 
                 src={IlustrasiGuru}
                 alt="Ilustrasi Guru Batik" 
-                className="absolute hidden object-contain h-auto md:block w-72 -right-4 -bottom-4 drop-shadow-xl"
+                className="absolute hidden object-contain h-auto md:block w-80 lg:w-86 -right-2 -bottom-2 drop-shadow-xl"
               />
             </div>
 

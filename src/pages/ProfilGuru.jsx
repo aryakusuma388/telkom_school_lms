@@ -4,14 +4,32 @@ import {
   Users, FileText, Settings, LogOut, User, Save, Camera, Mail, Phone, MapPin, Briefcase
 } from 'lucide-react';
 
-const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
-  // State lokal untuk form edit
-  const [formData, setFormData] = useState(dataProfil);
-  const [isEditing, setIsEditing] = useState(false);
+// --- 1. IMPORT FIREBASE ---
+import { db } from '../firebase'; // Sesuaikan path ini jika file firebase Anda ada di folder lain
+import { doc, updateDoc } from "firebase/firestore";
 
-  // Update state jika props berubah
+const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
+  const [formData, setFormData] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // Indikator loading saat menyimpan
+
+  // --- 2. TERJEMAHKAN DATA DATABASE KE FORM ---
   useEffect(() => {
-    setFormData(dataProfil);
+    if (dataProfil) {
+      setFormData({
+        // Tangkap nama_lengkap dari database, masukkan ke namaLengkap form
+        namaLengkap: dataProfil.nama_lengkap || "",
+        namaPanggilan: dataProfil.nama_panggilan || "",
+        // Anggap NIP adalah ID / Username (pastikan ini sesuai dengan Doc ID di database)
+        nip: dataProfil.nip || dataProfil.id || "25000013", 
+        jabatan: dataProfil.jabatan || "Guru Mapel",
+        bio: dataProfil.bio || "",
+        email: dataProfil.email || "",
+        noHp: dataProfil.noHp || "",
+        alamat: dataProfil.alamat || "",
+        foto: dataProfil.foto || `https://ui-avatars.com/api/?name=${dataProfil.nama_panggilan || "Guru"}&background=7f1d1d&color=fff`
+      });
+    }
   }, [dataProfil]);
 
   const handleChange = (e) => {
@@ -19,17 +37,47 @@ const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  // --- 3. FUNGSI SIMPAN KE FIREBASE ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData); // Kirim data ke App.jsx untuk disimpan
-    setIsEditing(false);
-    alert("Profil berhasil diperbarui!");
+    setIsSaving(true);
+
+    try {
+      // Merujuk ke dokumen user berdasarkan NIP (Pastikan Doc ID di Firestore adalah NIP)
+      const userRef = doc(db, "users", formData.nip);
+
+      // Data yang akan dikirim ke database (Ubah kembali ke format underscore)
+      const updatedData = {
+        nama_lengkap: formData.namaLengkap,
+        nama_panggilan: formData.namaPanggilan,
+        jabatan: formData.jabatan,
+        bio: formData.bio,
+        email: formData.email,
+        noHp: formData.noHp,
+        alamat: formData.alamat,
+        foto: formData.foto,
+      };
+
+      // Update ke Firestore
+      await updateDoc(userRef, updatedData);
+
+      // Kirim data yang sudah digabung ke App.jsx agar state utama juga terupdate
+      onSave({ ...dataProfil, ...updatedData }); 
+      
+      setIsEditing(false);
+      alert("Profil berhasil diperbarui di database!");
+    } catch (error) {
+      console.error("Gagal menyimpan:", error);
+      alert("Terjadi kesalahan saat menyimpan ke database.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen bg-[#F2F4F8] font-sans text-slate-800">
       
-      {/* === SIDEBAR (Sama seperti Dashboard) === */}
+      {/* === SIDEBAR === */}
       <aside className="fixed z-20 flex-col hidden w-64 h-full bg-white border-r md:flex border-slate-100">
         <div className="flex items-center gap-3 p-8">
            <div className="w-8 h-8 bg-[#7f1d1d] rounded-lg flex items-center justify-center text-white font-bold">T</div>
@@ -62,6 +110,7 @@ const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
             </div>
             <button 
                 onClick={() => setIsEditing(!isEditing)}
+                disabled={isSaving}
                 className={`px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 ${isEditing ? 'bg-slate-200 text-slate-600' : 'bg-[#7f1d1d] text-white shadow-lg shadow-red-200'}`}
             >
                 {isEditing ? 'Batal Edit' : 'Edit Profil'}
@@ -84,7 +133,7 @@ const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
                         </div>
                     </div>
 
-                    <h2 className="text-xl font-bold text-slate-800">{formData.namaPanggilan}</h2>
+                    <h2 className="text-xl font-bold text-slate-800">{formData.namaPanggilan || "Memuat..."}</h2>
                     <p className="mb-4 text-sm font-medium text-slate-500">{formData.jabatan}</p>
                     
                     <div className="flex flex-wrap justify-center gap-2">
@@ -98,11 +147,11 @@ const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
                     <h3 className="font-bold text-slate-800">Kontak Cepat</h3>
                     <div className="flex items-center gap-3 text-sm text-slate-600">
                         <div className="p-2 bg-slate-50 rounded-lg text-[#7f1d1d]"><Mail size={16}/></div>
-                        <span className="truncate">{formData.email}</span>
+                        <span className="truncate">{formData.email || "-"}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm text-slate-600">
                         <div className="p-2 bg-slate-50 rounded-lg text-[#7f1d1d]"><Phone size={16}/></div>
-                        <span>{formData.noHp}</span>
+                        <span>{formData.noHp || "-"}</span>
                     </div>
                 </div>
             </div>
@@ -144,9 +193,9 @@ const ProfilGuru = ({ dataProfil, onSave, onNavigate, onLogout }) => {
 
                     {isEditing && (
                         <div className="flex justify-end gap-3 pt-4 border-t border-slate-50">
-                            <button type="button" onClick={() => setIsEditing(false)} className="px-6 py-3 text-sm font-bold transition rounded-xl text-slate-500 hover:bg-slate-50">Batal</button>
-                            <button type="submit" className="px-8 py-3 rounded-xl text-sm font-bold bg-[#7f1d1d] text-white hover:bg-[#631717] shadow-lg shadow-red-100 transition flex items-center gap-2">
-                                <Save size={18} /> Simpan Perubahan
+                            <button type="button" onClick={() => setIsEditing(false)} disabled={isSaving} className="px-6 py-3 text-sm font-bold transition rounded-xl text-slate-500 hover:bg-slate-50">Batal</button>
+                            <button type="submit" disabled={isSaving} className={`px-8 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition flex items-center gap-2 ${isSaving ? 'bg-slate-400' : 'bg-[#7f1d1d] hover:bg-[#631717] shadow-red-100'}`}>
+                                <Save size={18} /> {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
                             </button>
                         </div>
                     )}

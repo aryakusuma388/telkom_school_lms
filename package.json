@@ -1,4 +1,3 @@
-
 {
   "homepage": "https://aryakusuma388.github.io/telkom_school_lms",
   "name": "my-lms-mobile",
@@ -10,11 +9,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",   
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "firebase": "^12.9.0",
     "lucide-react": "^0.574.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

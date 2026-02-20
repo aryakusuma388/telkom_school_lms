@@ -42,11 +42,19 @@ const App = () => {
   };
   // -----------------------------
 
-  const handleLogin = (userRole) => {
+  // SESUDAHNYA:
+  const handleLogin = (userRole, userData) => {
     setLoading(true);
     setTimeout(() => {
       setRole(userRole);
       localStorage.setItem('userRole', userRole);
+
+      // INI KUNCINYA: Menyimpan profil dari database ke state dan browser!
+      if (userData) {
+          setProfilGuru(userData);
+          localStorage.setItem('profilGuruApp', JSON.stringify(userData));
+      }
+
       setLoading(false);
     }, 1000);
   };
@@ -88,7 +96,8 @@ const App = () => {
 
   if (!role) return <Login onLogin={handleLogin} />;
 
-  if (role === 'koordinator') {
+  // 👇 INI YANG SAYA UBAH: Menambahkan (|| role === 'guru')
+  if (role === 'koordinator' || role === 'guru') {
     // ROUTING GURU
     if (teacherView === 'profil') {
         return (
@@ -120,7 +129,16 @@ const App = () => {
 
   if (role === 'siswa') return <StudentDash onLogout={handleLogout} />;
 
-  return null;
+  // Tampilan darurat jika rolenya tidak terdaftar sama sekali
+  return (
+    <div style={{ padding: '50px', textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <h2>Akses Ditolak!</h2>
+        <p>Role "{role}" tidak dikenali oleh sistem.</p>
+        <button onClick={handleLogout} style={{ padding: '10px 20px', cursor: 'pointer' }}>
+            Kembali ke Login
+        </button>
+    </div>
+  );
 };
 
 export default App;

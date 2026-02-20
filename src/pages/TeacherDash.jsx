@@ -1,6 +1,5 @@
-// ...existing code...
 import React from 'react';
-// ...existing code...
+import IlustrasiGuru from '../assets/images/guru_batik.png';
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -34,12 +33,12 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
   const emptySlots = Array(firstDayOfMonth).fill(null);
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  // Fallback data jika userProfil belum siap (mencegah error)
-  const profil = userProfil || {
-    namaLengkap: "Guru Telkom",
-    namaPanggilan: "Guru",
-    nip: "-",
-    foto: "https://via.placeholder.com/150"
+  // --- MENGAMBIL DATA PROFIL DARI FIRESTORE ---
+  const profil = {
+    namaLengkap: userProfil?.nama_lengkap || "Guru Telkom",
+    namaPanggilan: userProfil?.nama_panggilan || "Guru",
+    nip: userProfil?.nip || "-",
+    foto: userProfil?.foto || "https://ui-avatars.com/api/?name=" + (userProfil?.nama_lengkap || "Guru") + "&background=7f1d1d&color=fff" 
   };
 
   return (
@@ -67,7 +66,6 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
           <NavItem icon={<CalendarIcon size={20}/>} label="Jadwal" />
           <NavItem icon={<Users size={20}/>} label="Data Siswa" />
           
-          {/* MENU PENGATURAN (Link ke Profil) */}
           <div onClick={() => onNavigate('profil')} className="cursor-pointer">
             <NavItem icon={<Settings size={20}/>} label="Pengaturan" />
           </div>
@@ -117,7 +115,6 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
               <span className="absolute w-2 h-2 bg-red-500 border border-white rounded-full top-2 right-2"></span>
             </button>
             
-            {/* PROFIL DROPDOWN (Klik untuk ke Profil) */}
             <div 
               onClick={() => onNavigate('profil')}
               className="flex items-center gap-3 p-2 pr-4 transition bg-white border rounded-full shadow-sm cursor-pointer border-slate-100 hover:bg-slate-50"
@@ -128,7 +125,6 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
                 className="object-cover w-10 h-10 border rounded-full border-slate-200"
               />
               <div className="hidden text-left md:block">
-                {/* NAMA DIAMBIL DARI PROPS */}
                 <p className="w-32 text-sm font-bold leading-tight truncate text-slate-700">
                   {profil.namaLengkap}
                 </p>
@@ -149,7 +145,6 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
             {/* 1. Welcome Banner */}
             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 relative overflow-hidden flex items-center justify-between">
               <div className="relative z-10 max-w-md">
-                {/* NAMA PANGGILAN DINAMIS */}
                 <h1 className="mb-2 text-2xl font-bold text-slate-800">
                   Selamat Datang, Pak {profil.namaPanggilan}! 👋
                 </h1>
@@ -168,14 +163,16 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
                 </div>
               </div>
               
+              {/* === GAMBAR ILUSTRASI BARU DIMASUKKAN DI SINI === */}
+              {/* Pastikan path src="/guru-batik.png" disesuaikan dengan nama file Anda di folder public */}
               <img 
-                src="https://cdn3d.iconscout.com/3d/premium/thumb/books-and-graduation-cap-4963503-4127025.png" 
-                className="absolute hidden object-contain w-48 h-48 md:block -right-4 -bottom-4 drop-shadow-xl"
-                alt="Decoration"
+                src={IlustrasiGuru}
+                alt="Ilustrasi Guru Batik" 
+                className="absolute hidden object-contain h-auto md:block w-72 -right-4 -bottom-4 drop-shadow-xl"
               />
             </div>
 
-            {/* 2. Kartu Kelas (DINAMIS DARI PROPS) */}
+            {/* 2. Kartu Kelas */}
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-800">Kelas Ajar Anda</h3>
@@ -250,7 +247,7 @@ const TeacherDash = ({ onLogout, onNavigate, dataKelas = [], userProfil }) => {
           {/* KOLOM KANAN (1/3 lebar) */}
           <div className="space-y-8">
             
-            {/* 1. Calendar Widget (SUDAH HIDUP) */}
+            {/* 1. Calendar Widget */}
             <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold">{monthNames[currentMonth]} {currentYear}</h3>
